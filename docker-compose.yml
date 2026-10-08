@@ -41,3 +41,31 @@ services:
       - ./docker/create-topics.sh:/scripts/create-topics.sh
     entrypoint: ["/bin/bash", "/scripts/create-topics.sh"]
     restart: "no"
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:v1.2.0
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:8.0
+    ports:
+      - "27017:27017"
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0', members:[{_id:0, host:'mongo:27017'}]}).ok }"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mongo-data:
