@@ -31,3 +31,13 @@ services:
       timeout: 10s
       retries: 10
       start_period: 15s
+  
+  kafka-init:
+    image: apache/kafka:4.1.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./docker/create-topics.sh:/scripts/create-topics.sh
+    entrypoint: ["/bin/bash", "/scripts/create-topics.sh"]
+    restart: "no"
