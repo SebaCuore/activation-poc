@@ -1,0 +1,11 @@
+### Crear una activación
+POST http://localhost:3000/activations
+Content-Type: application/json
+
+{
+  "customerId": "C-1234",
+  "planId": "FLOW-FULL"
+}
+
+### Consultar una activación (pegá el activationId que te devolvió el POST)
+GET http://localhost:3000/activations/act-XXXXXXX
