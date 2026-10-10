@@ -3,7 +3,7 @@ POST http://localhost:3000/activations
 Content-Type: application/json
 
 {
-  "customerId": "C-9999",
+  "customerId": "C-1122",
   "planId": "FLOW-FULL"
 }
 
