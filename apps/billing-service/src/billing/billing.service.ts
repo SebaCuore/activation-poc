@@ -5,8 +5,16 @@ import { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { randomUUID } from 'node:crypto';
 import { createEvent, TOPICS } from '@poc/contracts';
-import type { ActivationRequested, BillingAccountCreated } from '@poc/contracts';
+import type {
+  ActivationFailed,
+  ActivationRequested,
+  AnyEvent,
+  BillingAccountCancelled,
+  BillingAccountCreated,
+  BillingFailed,
+} from '@poc/contracts';
 import { BillingAccount } from './billing-account.schema';
+import { FailedActivation } from './failed-activation.schema';
 
 @Injectable()
 export class BillingService implements OnModuleInit {
@@ -14,6 +22,7 @@ export class BillingService implements OnModuleInit {
 
   constructor(
     @InjectModel(BillingAccount.name) private readonly accountModel: Model<BillingAccount>,
+    @InjectModel(FailedActivation.name) private readonly failedModel: Model<FailedActivation>,
     @Inject('KAFKA_CLIENT') private readonly kafka: ClientKafka,
   ) {}
 
@@ -22,7 +31,21 @@ export class BillingService implements OnModuleInit {
   }
 
   async createAccount(request: ActivationRequested) {
-    // 1. Crear la cuenta de facturación simulada en la base de billing
+    const meta = {
+      correlationId: request.correlationId,
+      customerId: request.customerId,
+      source: 'billing-service',
+    };
+
+    // Fallo forzado desde la demo: no se crea la cuenta y se avisa
+    if (request.payload.simulateFailure === 'billing') {
+      const failed = createEvent<BillingFailed>('BillingFailed', meta, {
+        reason: 'Fallo simulado en billing',
+      });
+      await this.publish(failed);
+      return;
+    }
+
     const account = await this.accountModel.create({
       _id: `ba-${randomUUID().slice(0, 8)}`,
       activationId: request.correlationId,
@@ -31,23 +54,51 @@ export class BillingService implements OnModuleInit {
       status: 'CREATED',
     });
 
-    // 2. Armar el evento de resultado
-    const event = createEvent<BillingAccountCreated>(
-      'BillingAccountCreated',
-      {
-        correlationId: request.correlationId,
-        customerId: request.customerId,
-        source: 'billing-service',
-      },
+    const created = createEvent<BillingAccountCreated>('BillingAccountCreated', meta, {
+      billingAccountId: account._id,
+    });
+    await this.publish(created);
+
+    // Caso borde: si la activación ya había fallado, anular enseguida
+    if (await this.failedModel.exists({ _id: request.correlationId })) {
+      await this.cancelAccount(request.correlationId);
+    }
+  }
+
+  // Compensación: llega ActivationFailed
+  async compensate(event: ActivationFailed) {
+    // Anotar que esta activación falló (por si la cuenta se crea después)
+    await this.failedModel.updateOne(
+      { _id: event.correlationId },
+      { $set: { reason: event.payload.reason } },
+      { upsert: true },
+    );
+    await this.cancelAccount(event.correlationId);
+  }
+
+  private async cancelAccount(activationId: string) {
+    // Solo anula si existe y todavía está CREATED (así se anula una sola vez)
+    const account = await this.accountModel
+      .findOneAndUpdate(
+        { activationId, status: 'CREATED' },
+        { $set: { status: 'CANCELLED' } },
+        { returnDocument: 'after' },
+      )
+      .lean();
+    if (!account) return;
+
+    const cancelled = createEvent<BillingAccountCancelled>(
+      'BillingAccountCancelled',
+      { correlationId: activationId, customerId: account.customerId, source: 'billing-service' },
       { billingAccountId: account._id },
     );
+    await this.publish(cancelled);
+  }
 
-    // 3. Publicarlo en billing.events (clave = customerId)
+  private async publish(event: AnyEvent) {
     await lastValueFrom(
       this.kafka.emit(TOPICS.BILLING_EVENTS, { key: event.customerId, value: event }),
     );
-    this.logger.log(
-      `Cuenta ${account._id} creada | publicado ${event.eventType} para ${event.correlationId}`,
-    );
+    this.logger.log(`Publicado ${event.eventType} para ${event.correlationId}`);
   }
 }

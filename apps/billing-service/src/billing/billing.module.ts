@@ -4,10 +4,14 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
 import { BillingAccount, BillingAccountSchema } from './billing-account.schema';
+import { FailedActivation, FailedActivationSchema } from './failed-activation.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: BillingAccount.name, schema: BillingAccountSchema }]),
+    MongooseModule.forFeature([
+      { name: BillingAccount.name, schema: BillingAccountSchema },
+      { name: FailedActivation.name, schema: FailedActivationSchema }
+    ]),
     ClientsModule.register([
       {
         name: 'KAFKA_CLIENT',

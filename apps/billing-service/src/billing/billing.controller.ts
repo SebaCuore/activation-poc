@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, EventPattern, KafkaContext, Payload } from '@nestjs/microservices';
 import { TOPICS } from '@poc/contracts';
-import type { ActivationRequested } from '@poc/contracts';
+import type { ActivationOutcomeEvent, ActivationRequested } from '@poc/contracts';
 import { BillingService } from './billing.service';
 
 @Controller()
@@ -21,5 +21,13 @@ export class BillingController {
         `offset ${context.getMessage().offset}`,
     );
     await this.billingService.createAccount(event);
+  }
+
+  @EventPattern<string>(TOPICS.ACTIVATION_EVENTS)
+  async handleActivationOutcome(@Payload() event: ActivationOutcomeEvent) {
+    if (event.eventType === 'ActivationFailed') {
+      this.logger.log(`Recibido ActivationFailed para ${event.correlationId}: compensando`);
+      await this.billingService.compensate(event);
+    }
   }
 }
