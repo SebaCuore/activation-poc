@@ -6,7 +6,7 @@ import { lastValueFrom } from 'rxjs';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { createEvent, TOPICS } from '@poc/contracts';
-import type { ActivationRequested, ProvisioningCompleted } from '@poc/contracts';
+import type { ActivationRequested, ProvisioningCompleted, ProvisioningFailed } from '@poc/contracts';
 import { ProvisioningOrder } from './provisioning-order.schema';
 
 @Injectable()
@@ -28,31 +28,36 @@ export class ProvisioningService implements OnModuleInit {
     this.logger.log(`Aprovisionando ${request.correlationId}... (${delayMs} ms)`);
     await sleep(delayMs);
 
-    // 2. Guardar la orden de aprovisionamiento en la base de provisioning
+    const meta = {
+      correlationId: request.correlationId,
+      customerId: request.customerId,
+      source: 'provisioning-service',
+    };
+    const failed = request.payload.simulateFailure === 'provisioning';
+
+    // 2. Guardar la orden (COMPLETED o FAILED) en la base de provisioning
     const order = await this.orderModel.create({
       _id: `po-${randomUUID().slice(0, 8)}`,
       activationId: request.correlationId,
       customerId: request.customerId,
       planId: request.payload.planId,
-      status: 'COMPLETED',
+      status: failed ? 'FAILED' : 'COMPLETED',
     });
 
     // 3. Publicar el resultado en provisioning.events (clave = customerId)
-    const event = createEvent<ProvisioningCompleted>(
-      'ProvisioningCompleted',
-      {
-        correlationId: request.correlationId,
-        customerId: request.customerId,
-        source: 'provisioning-service',
-      },
-      { provisioningOrderId: order._id },
-    );
+    const event = failed
+      ? createEvent<ProvisioningFailed>('ProvisioningFailed', meta, {
+          reason: 'Fallo simulado en provisioning',
+        })
+      : createEvent<ProvisioningCompleted>('ProvisioningCompleted', meta, {
+          provisioningOrderId: order._id,
+        });
 
     await lastValueFrom(
       this.kafka.emit(TOPICS.PROVISIONING_EVENTS, { key: event.customerId, value: event }),
     );
     this.logger.log(
-      `Orden ${order._id} completada | publicado ${event.eventType} para ${event.correlationId}`,
+      `Orden ${order._id} ${order.status} | publicado ${event.eventType} para ${event.correlationId}`,
     );
   }
 }
