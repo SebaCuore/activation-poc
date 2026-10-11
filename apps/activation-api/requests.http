@@ -8,4 +8,24 @@ Content-Type: application/json
 }
 
 ### Consultar una activación (pegá el activationId que te devolvió el POST)
-GET http://localhost:3000/activations/act-d0e689e5
+GET http://localhost:3000/activations/act-b9addb40
+
+### Escenario 2: fallo en provisioning (con compensación)
+POST http://localhost:3000/activations
+Content-Type: application/json
+
+{
+  "customerId": "C-2002",
+  "planId": "FLOW-FULL",
+  "simulateFailure": "provisioning"
+}
+
+### Fallo en billing
+POST http://localhost:3000/activations
+Content-Type: application/json
+
+{
+  "customerId": "C-3003",
+  "planId": "FLOW-FULL",
+  "simulateFailure": "billing"
+}

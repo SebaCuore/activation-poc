@@ -16,7 +16,7 @@ export class ActivationEventsController {
       case 'BillingFailed':
         return this.activationsService.registerStepResult('billing', false, event);
       case 'BillingAccountCancelled':
-        return; // compensación: lo usamos en la Fase 2
+        return this.activationsService.addToHistory(event);
     }
   }
 

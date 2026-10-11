@@ -125,6 +125,15 @@ export class ActivationsService implements OnModuleInit {
     }
   }
 
+  // Eventos que no cambian el estado, pero tienen que verse en el historial
+  async addToHistory(event: AnyEvent) {
+    await this.activationModel.updateOne(
+      { _id: event.correlationId },
+      { $push: { history: { eventType: event.eventType, at: new Date().toISOString() } } },
+    );
+    this.logger.log(`${event.correlationId}: registrado ${event.eventType} en el historial`);
+  }
+
   private async finish(id: string, finalStatus: 'ACTIVE' | 'FAILED', failedStep?: Step) {
     const eventType = finalStatus === 'ACTIVE' ? 'ActivationCompleted' : 'ActivationFailed';
 
