@@ -348,6 +348,103 @@ importers:
         specifier: ^6.0.2
         version: 6.0.3
 
+  apps/notification-service:
+    dependencies:
+      '@nestjs/common':
+        specifier: ^12.0.1
+        version: 12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1)
+      '@nestjs/core':
+        specifier: ^12.0.1
+        version: 12.1.2(@nestjs/common@12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/microservices@12.1.2)(@nestjs/platform-express@12.1.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/microservices':
+        specifier: ^12.1.2
+        version: 12.1.2(@nestjs/common@12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@12.1.2)(kafkajs@2.2.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/mongoose':
+        specifier: ^12.0.0
+        version: 12.0.0(@nestjs/common@12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@12.1.2)(mongoose@9.11.1)(rxjs@7.8.2)
+      '@nestjs/platform-express':
+        specifier: ^12.0.1
+        version: 12.1.2(@nestjs/common@12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@12.1.2)(supports-color@8.1.1)
+      '@poc/contracts':
+        specifier: workspace:*
+        version: link:../../libs/contracts
+      kafkajs:
+        specifier: ^2.2.4
+        version: 2.2.4
+      mongoose:
+        specifier: ^9.11.1
+        version: 9.11.1
+      nodemailer:
+        specifier: ^10.1.0
+        version: 10.1.0
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.2
+    devDependencies:
+      '@nestjs/cli':
+        specifier: ^12.0.0
+        version: 12.0.8(@types/node@24.19.1)(prettier@3.9.9)(ts-loader@9.6.2(typescript@6.0.3)(webpack@5.111.1(uglify-js@3.19.3)))(webpack@5.111.1(uglify-js@3.19.3))
+      '@nestjs/mau':
+        specifier: ^0.2.6
+        version: 0.2.8
+      '@nestjs/schematics':
+        specifier: ^12.0.0
+        version: 12.0.6(chokidar@5.0.0)(prettier@3.9.9)(typescript@6.0.3)
+      '@nestjs/testing':
+        specifier: ^12.0.1
+        version: 12.1.2(@nestjs/common@12.1.2(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/core@12.1.2)(@nestjs/microservices@12.1.2)(@nestjs/platform-express@12.1.2)
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.6
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.1
+      '@types/nodemailer':
+        specifier: ^8.0.2
+        version: 8.0.2
+      '@types/supertest':
+        specifier: ^7.0.0
+        version: 7.2.1
+      jest:
+        specifier: ^30.0.0
+        version: 30.5.2(@types/node@24.19.1)(supports-color@8.1.1)(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))
+      oxlint:
+        specifier: ^1.58.0
+        version: 1.87.0(oxlint-tsgolint@7.0.2003)
+      oxlint-tsgolint:
+        specifier: ^7.0.2001
+        version: 7.0.2003
+      prettier:
+        specifier: ^3.4.2
+        version: 3.9.9
+      source-map-support:
+        specifier: ^0.5.21
+        version: 0.5.21
+      supertest:
+        specifier: ^7.0.0
+        version: 7.3.1(supports-color@8.1.1)
+      ts-jest:
+        specifier: ^29.4.0
+        version: 29.4.14(@babel/core@7.29.7(supports-color@8.1.1))(@jest/transform@30.5.2(supports-color@8.1.1))(@jest/types@30.5.1)(babel-jest@30.5.2(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(jest-util@30.5.1)(jest@30.5.2(@types/node@24.19.1)(supports-color@8.1.1)(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3)))(typescript@6.0.3)
+      ts-loader:
+        specifier: ^9.5.2
+        version: 9.6.2(typescript@6.0.3)(webpack@5.111.1(uglify-js@3.19.3))
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@24.19.1)(typescript@6.0.3)
+      tsconfig-paths:
+        specifier: ^4.2.0
+        version: 4.2.0
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+
   apps/provisioning-service:
     dependencies:
       '@nestjs/common':
@@ -1400,6 +1497,9 @@ packages:
 
   '@types/node@26.6.4':
     resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
+
+  '@types/nodemailer@8.0.2':
+    resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
@@ -2877,6 +2977,10 @@ packages:
   node-releases@2.0.57:
     resolution: {integrity: sha512-kQK9LGGFiHtrWiNhZtA7Qbw17AQz+dmsEKODRIVTXA9+e5MS/2gZEBhYJt13GrAz5/IOZKddH/0Z3TP/Zgo+yw==}
     engines: {node: '>=18'}
+
+  nodemailer@10.1.0:
+    resolution: {integrity: sha512-fXW8AulB25aOTuwfRYV6lqHyfz2VM4rr4SGXH03mE7x5znEUpzL5mu6anARUpZN7744Ziwkmr4AxSLPJsBQspg==}
+    engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -4497,6 +4601,10 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
+  '@types/nodemailer@8.0.2':
+    dependencies:
+      '@types/node': 24.19.1
+
   '@types/qs@6.15.1': {}
 
   '@types/range-parser@1.2.7': {}
@@ -6015,6 +6123,8 @@ snapshots:
   node-int64@0.4.0: {}
 
   node-releases@2.0.57: {}
+
+  nodemailer@10.1.0: {}
 
   normalize-path@3.0.0: {}
 
