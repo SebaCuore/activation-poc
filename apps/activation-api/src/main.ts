@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors(); 
 
   // Además de la API HTTP, la app escucha Kafka (app "híbrida")
   app.connectMicroservice<MicroserviceOptions>({
