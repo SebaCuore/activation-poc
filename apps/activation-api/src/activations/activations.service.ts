@@ -20,6 +20,7 @@ import type {
 } from '@poc/contracts';
 import type { CreateActivationDto, Step } from './activation';
 import { Activation } from './activation.schema';
+import { ActivationsGateway } from './activations.gateway';
 
 @Injectable()
 export class ActivationsService implements OnModuleInit {
@@ -28,6 +29,7 @@ export class ActivationsService implements OnModuleInit {
   constructor(
     @InjectModel(Activation.name) private readonly activationModel: Model<Activation>,
     @Inject('KAFKA_CLIENT') private readonly kafka: ClientKafka,
+    private readonly gateway: ActivationsGateway,
   ) {}
 
   async onModuleInit() {
@@ -66,6 +68,7 @@ export class ActivationsService implements OnModuleInit {
 
     // 3. Publicarlo en Kafka (clave = customerId)
     await this.publish(TOPICS.ACTIVATION_REQUESTED, event);
+    await this.broadcast(activation._id);
 
     return { activationId: activation._id, status: activation.status };
   }
@@ -108,6 +111,7 @@ export class ActivationsService implements OnModuleInit {
 
     // 2. Si ya estaba terminada, no hacemos nada más
     if (activation.status === 'ACTIVE' || activation.status === 'FAILED') {
+      await this.broadcast(id);
       return;
     }
 
@@ -123,6 +127,7 @@ export class ActivationsService implements OnModuleInit {
       );
       this.logger.log(`${id} -> IN_PROGRESS (llegó ${event.eventType}, falta el otro resultado)`);
     }
+    await this.broadcast(id);
   }
 
   // Eventos que no cambian el estado, pero tienen que verse en el historial
@@ -132,6 +137,13 @@ export class ActivationsService implements OnModuleInit {
       { $push: { history: { eventType: event.eventType, at: new Date().toISOString() } } },
     );
     this.logger.log(`${event.correlationId}: registrado ${event.eventType} en el historial`);
+    await this.broadcast(event.correlationId);
+  }
+
+  // Mandar el estado actual de la activación a la UI por WebSocket
+  private async broadcast(id: string) {
+    const activation = await this.activationModel.findById(id).lean();
+    if (activation) this.gateway.emitUpdate(activation);
   }
 
   private async finish(id: string, finalStatus: 'ACTIVE' | 'FAILED', failedStep?: Step) {

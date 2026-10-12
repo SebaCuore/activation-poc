@@ -5,6 +5,7 @@ import { ActivationsController } from './activations.controller';
 import { ActivationsService } from './activations.service';
 import { Activation, ActivationSchema } from './activation.schema';
 import { ActivationEventsController } from './activation-events.controller';
+import { ActivationsGateway } from './activations.gateway';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { ActivationEventsController } from './activation-events.controller';
     ]),
   ],
   controllers: [ActivationsController, ActivationEventsController],
-  providers: [ActivationsService],
+  providers: [ActivationsService, ActivationsGateway],
 })
 export class ActivationsModule {}
