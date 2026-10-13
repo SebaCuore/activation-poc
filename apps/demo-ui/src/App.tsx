@@ -1,3 +1,5 @@
+import { useState } from "react"
+import type { FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -32,6 +34,19 @@ const failureOptions = [
 
 
 function App() {
+  const [customerId, setCustomerId] = useState("C-1234");
+  const [planId, setPlanId] = useState("FLOW-FULL");
+  const [simulateFailure, setSimulateFailure] = useState("none");
+
+
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    console.log("Datos del formulario:", { customerId, planId, simulateFailure })
+  }
+
+
+
   return (
     <div className="max-w-5xl mx-auto p-6">
 
@@ -43,51 +58,65 @@ function App() {
 
       {/* 3. Dos columnas: 300px a la izquierda, el resto a la derecha */}
       <main className="grid grid-cols-[300px_1fr] gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Contratar plan</CardTitle>
-            <CardDescription>Selecciona el plan que mejor se adapte a tus necesidades</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="customerId">Cliente</Label>
-              <Input id="customerId" defaultValue="C-1234" />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="planId">Plan</Label>
-              <Select defaultValue="FLOW-FULL">
-                <SelectTrigger id="planId" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {planOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="simulateFailure">Forzar fallo</Label>
-              <Select  defaultValue="none">
-                <SelectTrigger id="simulateFailure" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {failureOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full">Contratar</Button>
-          </CardFooter>
-        </Card>
+        <form onSubmit={handleSubmit}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Contratar plan</CardTitle>
+              <CardDescription>Selecciona el plan que mejor se adapte a tus necesidades</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="customerId">Cliente</Label>
+                <Input
+                  id="customerId"
+                  value={customerId}
+                  onChange={(e) => setCustomerId(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="planId">Plan</Label>
+                <Select
+                  value={planId}
+                  onValueChange={setPlanId}
+                >
+                  <SelectTrigger id="planId" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {planOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="simulateFailure">Forzar fallo</Label>
+                <Select
+                  value={simulateFailure}
+                  onValueChange={setSimulateFailure}
+                >
+                  <SelectTrigger id="simulateFailure" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {failureOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full" type="submit">
+                Contratar
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
 
         <div className="border rounded-lg p-4">
           Todavía no hay activaciones.
